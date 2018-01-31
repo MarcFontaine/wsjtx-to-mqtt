@@ -151,7 +151,7 @@ deploy:
     api_key:
       secure: "XW+7ZdvVwq+MGxcFKs91SrL6p4U2FuU0+pSqowsD3tvyguOgR52CgMyoc7WV3AYThJ4sKxMgKy76ckGXVsQrwtJh8yiRo1fmMsx/3YgcCj+8CdlcxP8jh1jM9aO1Kk91rnhbgu4cQ2pBZCrs3d9Pgu+eEmkpryh+4xnYLdViUVqi4qz+/c3y+b3jbwv5vrqJYc8VCKKolMVEbTHCWU+HnvfVee49VDyQVFChixSVMVqp6aYCppqrpQjMF8Y3JdAO+p3XA0dLJbj3+8+tbX8qRspigIZY+WlCPv4/6sXqGb4S3UqVSBZIBl2+whXMc/3LfXcjHOQCbKsq9JzHN+F8vA4+TdFfLLTf3/C9FmLH83EV8ZL9rNfjPYgqrcHepSJz2mQV5uWhhCWgJ1MZJQFjzmVw+4kgVsjmUwLn7kEVY53WS3ez9gs7FhNSh/B9c0YlclOq83z1RChZ24wqQXBFTB9X8+skWCDyvq0zOO7lbkOmOwK7iyQdGVLCWRlOToS759WOyD1qlI0uRXWlMLFy4gAS19ECzwpMj8nCMdqGFBfXmCq0xfx9EUD/DVcdgjS7LXGEh/AnxspZuzgq95MNNFuz+iTJTHojTp8m6sIESFWjWnTZlm4ZzEjWgO49LsKElnvWESRY9vtEAGQO60oxT6hgxU52FFkQGbstZALh9i0="
     file_glob: true
-    file: /home/travis/build/MarcFontaine/wsjtx-udp/.stack-work/dist/x86_64-linux/*/wsjtx-to-mqtt*.tar.gz
+    file: /home/travis/build/MarcFontaine/wsjtx-to-mqtt/.stack-work/dist/x86_64-linux/*/wsjtx-to-mqtt*.tar.gz
     skip_cleanup: true
     on:
       tags: true
