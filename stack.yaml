@@ -1,0 +1,10 @@
+resolver: lts-10.0
+
+allow-newer: true
+
+extra-deps:  
+- git: https://github.com/juselius/mqtt-hs
+  commit: 67bf8aee99ee5bd6ec6f7889d2c45033343d2b66
+- wsjtx-udp-0.1.0.6
+
+
