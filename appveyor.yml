@@ -54,7 +54,7 @@ deploy:
   provider: GitHub
   auth_token:
     secure: AWoTiXZzN2N3h+bN41iEYGW8UHYKvTVnrtWRGiaZIzhuQlyBOq+QlxuxDHDDAn1J
-  artifact: wsjtx-dump-udp.exe
+  artifact: wsjtx-to-mqtt.exe
   on:
     appveyor_repo_tag: true
     
