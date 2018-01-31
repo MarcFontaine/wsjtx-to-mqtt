@@ -1,0 +1,157 @@
+# See https://github.com/harendra-kumar/packcheck for all parameters and their
+# explanation.
+env:
+  global:
+  - PACKCHECK="./packcheck.sh"
+  # The commit id of packcheck.sh to use from
+  # https://github.com/harendra-kumar/packcheck.  Used only when the script
+  # does not exist in the package repo at the path specified by "PACKCHECK"
+  - PACKCHECK_COMMIT="da9d6da3d18d6250c06617817f0879324c75c224"
+  - GHC_OPTIONS="-Werror"
+  # ------------------------------------------------------------------------
+  # Builds that need stack
+  # ------------------------------------------------------------------------
+  - STACKVER="1.6.3"
+  - STACK_UPGRADE="y"
+  # ------------------------------------------------------------------------
+  # Common parameters: Normally you would not need to customize these params
+  # ------------------------------------------------------------------------
+  - CABAL_REINIT_CONFIG=y
+  - CABAL_CHECK_RELAX=y
+  - CABAL_NO_SANDBOX=y
+  - CABAL_HACKAGE_MIRROR=hackage.haskell.org:http://hackage.fpcomplete.com
+  - TEST_INSTALL=y
+  - PATH=/bin:/usr/bin
+  - LC_ALL=C.UTF-8
+
+notifications:
+  email:
+    recipients:
+      secure: "DZKp2uKxT2/807752ZknAlaHFUwb5QzthDjhCd9WTKptujZGTn2kBNr48dgKvTXD4IU4Agyd9yF1acxe2/w/0yrBeLXWZTFP2al0wr17o0zCQRVbRvT/EpROjmxX/BSWnAI3FNgOnczVSotbcMsAUjBRjteu68WDfDuxGVnR06OgSS14UKMwQLnyFYlic5EiMVXcani28RPp1+oDapI8pmoDHYzITH5plGYxa/SNMll3xDLjFRKoZAKTxkoDZiArPElk7LaRFTe0lGN16tQlg7hHCI976osKBjSzRI1xvAz/gYWnHOFRicons/a1F/UDHJYHLZHn992j7OMs9eb5NvxEPfddT7TR49HzuGU2i4Ls2ePUI5p93CfFzsW8Qn4PcPUM/pxdHZzqZsQBjKqdjM8cjsLVPe9umPcJD4lcgY6sTwoz9+2IDiXvHBRthDu5rkBY1brU65t40Z41YUTIJ0ihO0AQ7GrUEjhc5A0iWgoH++v1ch6GBgM8OuNx6nEZ6U3j8QM3blE2HFK24H6OuoldD1ACL40bch03icJyWCnbQ2uhG14BAI4cQ/61J/QbxxZkZhPdvyjylKmjMDEuyl3F2pkZAq0GVk2/TpNxWG8KGic2jASHp8tsphzJtFDIwMWU4pZ+0h/+Ssuglid7s03tJ7xWGE1D1BB8pEGkh3A="
+    on_success: change
+    on_failure: always
+
+
+# This matrix has total 11 builds enabled, 4 builds each (3 last major compiler
+# versions and head) for stack and cabal, 2 OSX builds (stack and cabal for
+# latest compiler version), and one hlint build. You may want to comment out
+# some of the builds to be lighter on the CI infrastructure.
+#
+# We pre-install the cabal-install package to not incur the penalty of building
+# it the first time in cached builds or every time in uncached builds.
+matrix:
+  include:
+
+  # --------------------------------------------------------------------------
+  # (Linux) stack builds
+  # --------------------------------------------------------------------------
+
+  - env: BUILD=stack CABALVER=2.0 GHCVER=8.2.2 RESOLVER=lts-10
+    addons: {apt: {packages: [cabal-install-2.0,ghc-8.2.2], sources: [hvr-ghc]}}
+
+  # Nightly
+  - env: BUILD=stack RESOLVER=nightly
+
+  # Using a custom stack-yaml config file.
+  #- env: BUILD=stack STACK_YAML=.ci/stack-8.0.yaml
+
+  # You can customize a stack build even without a custom stack-yaml
+  # using STACK_OPTIONS, STACK_BUILD_OPTIONS, GHC_OPTIONS etc.
+  #- env: BUILD=stack RESOLVER=lts-10.0 STACK_BUILD_OPTIONS="--flag packcheck:dev"
+
+  # --------------------------------------------------------------------------
+  # (Linux) cabal builds require pre-installed cabal-install and ghc
+  # --------------------------------------------------------------------------
+
+  - env: BUILD=cabal CABALVER=2.0 GHCVER=8.2.2
+    addons: {apt: {packages: [cabal-install-2.0,ghc-8.2.2], sources: [hvr-ghc]}}
+
+  - env: BUILD=cabal CABALVER=head GHCVER=head
+    addons: {apt: {packages: [cabal-install-head,ghc-head], sources: [hvr-ghc]}}
+
+  # --------------------------------------------------------------------------
+  # OS X builds
+  # --------------------------------------------------------------------------
+
+  # GHC 8.2.2/cabal build via stack
+  - env: BUILD=cabal RESOLVER=lts-10
+    os: osx
+
+  # GHC 8.2.2/stack
+  - env: BUILD=stack RESOLVER=lts-10
+    os: osx
+
+  # --------------------------------------------------------------------------
+  # Lint
+  # --------------------------------------------------------------------------
+
+  - env: BUILD=stack RESOLVER=lts-10 HLINT_COMMANDS="hlint lint ."
+
+  # --------------------------------------------------------------------------
+  # Build and send coverage report to coveralls.io using hpc-coveralls
+  # --------------------------------------------------------------------------
+
+  # Note COVERALLS (hpc-coveralls) works only with cabal build.
+  # For this to succeed you have to add your porject to coveralls.io first
+  #- env: BUILD=cabal CABALVER=2.0 GHCVER=8.2.2 COVERALLS_OPTIONS="--coverage-mode=StrictlyFullLines --exclude-dir=test test"
+  #  addons: {apt: {packages: [cabal-install-2.0,ghc-8.2.2], sources: [hvr-ghc]}}
+
+  # --------------------------------------------------------------------------
+  # Builds that are allowed to fail
+  # --------------------------------------------------------------------------
+
+  allow_failures:
+  - env: BUILD=stack RESOLVER=nightly
+  - env: BUILD=cabal CABALVER=head GHCVER=head
+  - env: BUILD=stack RESOLVER=lts-10 HLINT_COMMANDS="hlint lint ."
+
+# ------------------------------------------------------------------------
+#  Settings beyond this point are advanced and normally not tweaked
+# ------------------------------------------------------------------------
+
+language: bash
+sudo: false
+cache:
+  directories:
+  - $HOME/.cabal
+  - $HOME/.ghc
+  - $HOME/.local
+  - $HOME/.stack
+install: true
+
+script:
+  - |
+    # When GHCVER or CABALVER env variables are specified, modify the path to
+    # find the binaries installed from hvr-ghc repo
+    add_path()  { eval "test -n \"\$$1\"" && eval "PATH=/opt/$2/\"\$$1\"/bin:$PATH"; true; }
+
+    # Emit the value of the var specified as arg only when the build is cabal
+    cabal_env() { test "$BUILD" = cabal && echo $1; }
+
+    # If a custom stack-yaml is specified, replace the default with that
+    if test -e "$STACK_YAML"; then rm -f stack.yaml && ln -sv $STACK_YAML stack.yaml; else true; fi
+    unset STACK_YAML
+
+    # Get packcheck if needed
+    CURL=$(which curl)
+    PACKCHECK_URL=https://raw.githubusercontent.com/harendra-kumar/packcheck/${PACKCHECK_COMMIT}/packcheck.sh
+    if test ! -e "$PACKCHECK"; then $CURL -sL -o "$PACKCHECK" $PACKCHECK_URL; fi;
+    chmod +x $PACKCHECK
+
+    add_path GHCVER   ghc
+    add_path CABALVER cabal
+
+    # In addition to PACKCHECK envvars hpc-coveralls needs TRAVIS,
+    # TRAVIS_JOB_ID variables set by the travis CI environment.
+  - bash -c "$PACKCHECK $BUILD"
+
+
+deploy:
+  - provider: releases
+    api_key:
+      secure: Afa47+xKCVR5wdcNSTT3Z3f2vTkuhL/FBVu6rAdj+0Os1r8f9WXY/V2bxMXOf7QfBOOKZZV0VaXo9Zzjtbd4LkxFPSqtZcAxamRj2zlBr7Drb55s0irDwtC7WtafrJSLv8E3+aXjCCBJylF5IqpJAkqnYteHCaONGzKXYacxHDT9nQxF0xHFHLrxT+V6dke1Bq8Q+LxtZmvAMdr68lUxxwMcqxAQKZEnqPfDEswrtPcmsm5/0WqnC954bXaP29I3OW8QmOCgTDqdhuPIPL5sioSNaR2uRtcO+kxeeOgjc30wcb56tcF/iHpuzeOGMY/PQCkSoGHlMAfBswoMsgdjmBARVO1e83oU8aAQ7h8cGoBzywlF4uFBoEZ4LqD3CDvjQYtvzM78/wYjv6MUxSrUHO215xjOl+kizH892KieD1eDu7cGuL/gbVsfz02e/Iw52ncnYMLRn0K0TUvFBqKRfESxB+9+6NGJHwPAMV5ibk3O9CCYg1To/DBuuOaV91YFXfgxgfm3mluqMvGYZeTMAIwxenXNwaITswDXdxXZxn3QZJejJdgvbyTmriypMb+krVQrJrRnyN13OPD5wJyjKRn4tPhxH00BfS+e8vyUU2bu+KqNtCtGKJTBohm/GSeAHgx8rMAkEe+Tr8CXHK8gDzAosPWKMTtswCkEQxphe8o=
+    file_glob: true
+    file: /home/travis/build/MarcFontaine/wsjtx-udp/.stack-work/dist/x86_64-linux/*/wsjtx-to-mqtt*.tar.gz
+    skip_cleanup: true
+    on:
+      tags: true

@@ -1,0 +1,51 @@
+name:                wsjtx-to-mqtt
+synopsis:            a bridge between WSJTX and the MQTT protocol
+description:
+            A bridge between WSJTX and the MQTT protocol.
+            
+version:             0.1.0.1
+license:             BSD3
+license-file:        LICENSE
+author:              Marc Fontaine
+maintainer:          Marc.Fontaine@gmx.de
+category:            HAM, Network, IoT
+homepage:            https://github.com/MarcFontaine/wsjtx-to-mqtt
+extra-source-files:  README.md
+build-type:          Simple
+cabal-version:       >=1.10
+
+source-repository head
+  type:     git
+  location: git:://github.com/MarcFontaine/wsjtx-to-mqtt.git
+
+    
+executable wsjtx-to-mqtt
+    build-depends:
+      base  >= 4 && < 5
+      , bytestring
+      , stm
+      , text
+      , time
+      , network
+      , aeson
+      , aeson-pretty
+      , data-default-class
+      , template-haskell
+      , th-lift-instances          
+      , microlens
+      , microlens-th                
+      , options          
+      , hjsmin
+      , mqtt-hs
+      , wsjtx-udp >= 0.1.0.0
+                
+    ghc-options:      -rtsopts -Wall -threaded -with-rtsopts=-T
+    default-language: Haskell2010
+    default-extensions:     TemplateHaskell
+    hs-source-dirs:   src
+    main-is:          WsjtxToMqtt.hs
+    other-modules:
+        Config
+      , W2MTypes
+      , Bridge            
+      , FormatMqttMsg
