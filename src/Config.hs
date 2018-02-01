@@ -56,10 +56,10 @@ includedConfig :: W2MTypes.Config
 // comments are allowed
 {
     "reporter": {
-        "reporter_callsign": "E8TST",
-        "reporter_locator": "FE43ab", 
-        "reporter_info": "rig : FT-840,  Antenna : Vertical",// add what you like 
-        "reporter_band_config": {
+        "callsign": "E8TST",
+        "locator": "FE43ab", 
+        "info": "rig : FT-840,  Antenna = Vertical",// add what you like 
+        "band_config": {
             "tag": "TrackWSJTXBand"
         }
     },

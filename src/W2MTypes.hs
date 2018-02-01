@@ -16,7 +16,7 @@
 module W2MTypes where
 
 import Data.Fixed
-import Data.Text
+import Data.Text (Text)
 import Data.Time
 import Data.Word
 import GHC.Generics
@@ -55,9 +55,10 @@ data Config = Config {
   } deriving (Show, Read, Eq, Generic, Lift)
 
 instance ToJSON Config where
-  toEncoding = genericToEncoding $ aesonOptions "config_"
+  toJSON = genericToJSON aesonOptionsDropPrefix
+  toEncoding = genericToEncoding aesonOptionsDropPrefix
 instance FromJSON Config where
-  parseJSON = genericParseJSON $ aesonOptions "config_"
+  parseJSON = genericParseJSON aesonOptionsDropPrefix
 
 instance Default Config where
   def = Config {
@@ -76,7 +77,8 @@ data BrokerConfig = BrokerConfig {
   } deriving (Show, Read, Eq, Generic, Lift)
 
 instance ToJSON BrokerConfig where
-    toEncoding = genericToEncoding defaultOptions
+  toJSON = genericToJSON defaultOptions
+  toEncoding = genericToEncoding defaultOptions
 instance FromJSON BrokerConfig
 
 instance Default BrokerConfig where
@@ -96,8 +98,10 @@ data ReporterConfig = ReporterConfig {
   } deriving (Show, Read, Eq, Generic, Lift)
 
 instance ToJSON ReporterConfig where
-    toEncoding = genericToEncoding defaultOptions
-instance FromJSON ReporterConfig
+  toJSON = genericToJSON aesonOptionsDropPrefix
+  toEncoding = genericToEncoding aesonOptionsDropPrefix
+instance FromJSON ReporterConfig where
+  parseJSON = genericParseJSON aesonOptionsDropPrefix
 
 instance Default ReporterConfig where
   def = ReporterConfig {
@@ -114,7 +118,8 @@ data BandReport
   deriving (Show, Read, Eq, Generic, Lift)
 
 instance ToJSON BandReport where
-    toEncoding = genericToEncoding defaultOptions
+  toJSON = genericToJSON defaultOptions
+  toEncoding = genericToEncoding defaultOptions
 instance FromJSON BandReport
 
 data WSJTXConfig = WSJTXConfig {
@@ -122,6 +127,7 @@ data WSJTXConfig = WSJTXConfig {
   } deriving (Show, Read, Eq, Generic, Lift)
 
 instance ToJSON WSJTXConfig where
+  toJSON = genericToJSON defaultOptions
   toEncoding = genericToEncoding defaultOptions
 instance FromJSON WSJTXConfig
 instance Default WSJTXConfig where
@@ -144,7 +150,8 @@ data Report = Report {
   } deriving (Show, Eq, Generic)
 
 instance ToJSON Report where
-    toEncoding = genericToEncoding defaultOptions
+  toJSON = genericToJSON defaultOptions
+  toEncoding = genericToEncoding defaultOptions
 instance FromJSON Report
 
 quoteConfig :: QuasiQuoter
@@ -164,11 +171,9 @@ stringToConfig str
      Right x -> x
      Left msg -> error $ ("stringToConfig " ++ show  msg)
 
-aesonOptions :: String -> Options
-aesonOptions prefix = defaultOptions {
-  fieldLabelModifier = stripUnderScore
-  }
-  where
-    stripUnderScore x = Prelude.drop pl x
-    pl = Prelude.length prefix
+aesonOptionsDropPrefix :: Options
+aesonOptionsDropPrefix
+  = defaultOptions {
+      fieldLabelModifier = tail . dropWhile (not . (==) '_')
+    }
 
