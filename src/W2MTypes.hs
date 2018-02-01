@@ -22,14 +22,14 @@ import Data.Word
 import GHC.Generics
 import Data.Default.Class
 import Data.Aeson as Aeson
+import Data.Yaml as Yaml
 import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.Quote
-import qualified Data.ByteString.Lazy()
-import qualified Data.ByteString.Lazy.Char8 as BSLC (pack)
+import qualified Data.ByteString ()
+import qualified Data.ByteString.Char8 as BS (pack)
 import Instances.TH.Lift()
 import qualified Options
 import Options hiding (Options, defaultOptions)
-import Text.Jasmine as Jasmine
 
 data MainOptions = MainOptions
     { _debug :: Bool
@@ -167,7 +167,7 @@ quoteConfig = QuasiQuoter {
 
 stringToConfig :: String -> Config
 stringToConfig str
-  = case Aeson.eitherDecode $ Jasmine.minify $ BSLC.pack str of
+  = case Yaml.decodeEither $ BS.pack str of
      Right x -> x
      Left msg -> error $ ("stringToConfig " ++ show  msg)
 

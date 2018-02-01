@@ -16,8 +16,8 @@ import System.Exit (exitFailure)
 import System.Environment (lookupEnv)
 import Control.Monad
 import Data.Maybe
-import Text.Jasmine as Jasmine
-import Data.Aeson as Aeson
+--import Data.Aeson as Aeson
+import Data.Yaml as Yaml
 import qualified Data.Default.Class as Default
 
 import W2MTypes
@@ -34,12 +34,12 @@ getConfig opts
         `mplus` (Just "wsmqtt.conf")
         )
   when (_debug opts) $ putStrLn $ "config file path :" ++ configFile
-  confData <- Jasmine.minifyFile  configFile
-  config <- case eitherDecode confData of
+  confData <- Yaml.decodeFileEither configFile
+  config <- case confData of
     Right x  -> return x
-    Left msg -> do 
+    Left err -> do 
       putStrLn "Cannot parse config file"
-      putStrLn msg
+      putStrLn $ show err
       exitFailure
   return config
 
@@ -52,30 +52,22 @@ helpConfig = do
 includedConfigStr :: String
 includedConfig :: W2MTypes.Config
 (includedConfigStr,includedConfig) = [quoteConfig|
-// wsjtx-to-mqtt uses json syntax for config files
-// comments are allowed
-{
-    "reporter": {
-        "callsign": "E8TST",
-        "locator": "FE43ab", 
-        "info": "rig : FT-840,  Antenna = Vertical",// add what you like 
-        "band_config": {
-            "tag": "TrackWSJTXBand"
-        }
-    },
-    "report_broker": {
-        "username": "myUserName",
-        "password": "secret",
-        "head_topics": [
-            "hamradio",
-            "spot"
-        ],
-        "host": "localhost"
-    },
-    "enable_report": true,
-    "protocol_version": "W2M-V0.1",   // don't change this
-    "wsjtx": {
-        "udp_port": 2237           // default udp-port  
-    }
-}
+# some comment
+wsjtx:
+  udp_port: 2237
+protocol_version: W2M-V0.1
+reporter:
+  info: ! 'rig : FT-840,  Antenna : Vertical'
+  callsign: E8TST
+  band_config:
+    tag: TrackWSJTXBand
+  locator: FE43ab
+report_broker:
+  username: myUserName
+  password: secret
+  head_topics:
+  - hamradio
+  - spot
+  host: localhost
+enable_report: true
 |]
