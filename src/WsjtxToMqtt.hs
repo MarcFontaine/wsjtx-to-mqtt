@@ -5,9 +5,10 @@ module Main where
 import Control.Monad
 import System.Exit (exitFailure, exitSuccess)
 import qualified Data.ByteString.Lazy.Char8 as BSLC (pack)
+import qualified Data.ByteString.Char8 as BS (putStrLn)
 import Options hiding (Options, defaultOptions)
 import Data.Aeson as Aeson (eitherDecode)
-
+import Data.Yaml (encode)
 import W2MTypes
 import Bridge (runBridge)
 import Config (getConfig, helpConfig)
@@ -15,7 +16,7 @@ import WSJTX.UDP.Server (testDump, replyWithPackages)
 
 main :: IO ()
 main = runSubcommand [
-   subcommand "help" help
+   subcommand "showConfig" showConfig
   ,subcommand "forward" forward
   ,subcommand "dumpWsjtx" dumpWsjtx
   ,subcommand "sendToUdp" sendToUDP
@@ -24,9 +25,13 @@ main = runSubcommand [
 dumpWsjtx :: MainOptions -> MainOptions -> [String] -> IO ()
 dumpWsjtx _ _ _ = void $ testDump
 
-help :: MainOptions -> MainOptions -> [String] -> IO ()
-help _ _ _ = do
+showConfig :: MainOptions -> MainOptions -> [String] -> IO ()
+showConfig cmdOpts _ _ = do
   helpConfig
+  putStrLn "---------------" 
+  putStrLn "current config:"
+  config <- getConfig cmdOpts
+  BS.putStrLn $ encode config
   exitSuccess
 
 sendToUDP :: MainOptions -> MainOptions -> [String] -> IO ()
