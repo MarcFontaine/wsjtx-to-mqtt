@@ -11,7 +11,7 @@ env:
   # ------------------------------------------------------------------------
   # Builds that need stack
   # ------------------------------------------------------------------------
-  - STACKVER="1.6.3"
+  - STACKVER="1.6.5"
   - STACK_UPGRADE="y"
   # ------------------------------------------------------------------------
   # Common parameters: Normally you would not need to customize these params
@@ -46,8 +46,8 @@ matrix:
   # (Linux) stack builds
   # --------------------------------------------------------------------------
 
-  - env: BUILD=stack CABALVER=2.0 GHCVER=8.2.2 RESOLVER=lts-10
-    addons: {apt: {packages: [cabal-install-2.0,ghc-8.2.2], sources: [hvr-ghc]}}
+  #- env: BUILD=stack CABALVER=2.0 GHCVER=8.2.2 RESOLVER=lts-10
+  #  addons: {apt: {packages: [cabal-install-2.0,ghc-8.2.2], sources: [hvr-ghc]}}
 
   # Nightly
   - env: BUILD=stack RESOLVER=nightly
@@ -78,7 +78,7 @@ matrix:
   #   os: osx
 
   # GHC 8.2.2/stack
-  - env: BUILD=stack RESOLVER=lts-10
+  - env: BUILD=stack RESOLVER=nightly
     os: osx
 
   # --------------------------------------------------------------------------
