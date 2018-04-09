@@ -16,7 +16,6 @@ import System.Exit (exitFailure)
 import System.Environment (lookupEnv)
 import Control.Monad
 import Data.Maybe
---import Data.Aeson as Aeson
 import Data.Yaml as Yaml
 import qualified Data.Default.Class as Default
 
@@ -31,7 +30,7 @@ getConfig opts
   let configFile = fromJust (
         (_configPath opts)
         `mplus` envPath
-        `mplus` (Just "wsmqtt.conf")
+        `mplus` (Just "wsjtx-to-mqtt.yaml")
         )
   when (_debug opts) $ putStrLn $ "config file path :" ++ configFile
   confData <- Yaml.decodeFileEither configFile
