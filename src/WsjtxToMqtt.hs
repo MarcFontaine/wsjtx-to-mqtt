@@ -9,6 +9,8 @@ import qualified Data.ByteString.Char8 as BS (putStrLn)
 import Options hiding (Options, defaultOptions)
 import Data.Aeson as Aeson (eitherDecode)
 import Data.Yaml (encode)
+import Paths_wsjtx_to_mqtt (version)
+import Data.Version (showVersion)
 import W2MTypes
 import Bridge (runBridge)
 import Config (getConfig, helpConfig)
@@ -27,6 +29,7 @@ dumpWsjtx _ _ _ = void $ testDump
 
 showConfig :: MainOptions -> MainOptions -> [String] -> IO ()
 showConfig cmdOpts _ _ = do
+  putStrLn $ "Version : " ++ showVersion version
   helpConfig
   putStrLn "---------------" 
   putStrLn "current config:"
