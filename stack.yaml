@@ -1,5 +1,6 @@
 
 allow-newer: true
+resolver: nightly-2018-04-24
 
 extra-deps:  
 - git: https://github.com/MarcFontaine/mqtt-hs
