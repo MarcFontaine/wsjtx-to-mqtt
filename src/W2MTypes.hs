@@ -3,39 +3,47 @@
 -- Module      :  W2MTypes
 -- Copyright   :  (c) Marc Fontaine 2017-2018
 -- License     :  BSD3
--- 
+--
 -- Maintainer  :  Marc.Fontaine@gmx.de
 -- Stability   :  experimental
 -- Portability :  GHC-only
 --
 
-{-# Language DataKinds, OverloadedStrings, ScopedTypeVariables #-}
-{-# LANGUAGE RecordWildCards, DeriveGeneric #-}
-{-# LANGUAGE TemplateHaskell, DeriveLift #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE DeriveGeneric       #-}
+{-# LANGUAGE DeriveLift          #-}
+{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE RecordWildCards     #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell     #-}
 
 module W2MTypes where
 
-import Data.Fixed
-import Data.Text (Text)
-import Data.Time
-import Data.Word
-import GHC.Generics
-import Data.Default.Class
-import Data.Aeson as Aeson
-import Data.Yaml as Yaml
-import Language.Haskell.TH.Syntax
-import Language.Haskell.TH.Quote
+import           Data.Aeson as Aeson
 import qualified Data.ByteString ()
 import qualified Data.ByteString.Char8 as BS (pack)
-import Instances.TH.Lift()
+import           Data.Default.Class
+import           Data.Fixed
+import           Data.Text (Text)
+import           Data.Time
+import           Data.Word
+import           Data.Yaml as Yaml
+import           GHC.Generics
+import           Instances.TH.Lift ()
+import           Language.Haskell.TH.Quote
+import           Language.Haskell.TH.Syntax
+import           Options hiding (Options, defaultOptions)
 import qualified Options
-import Options hiding (Options, defaultOptions)
 
 data MainOptions = MainOptions
-    { _debug :: Bool
-     ,_configPath :: Maybe String
+    { _debug       :: Bool
+     ,_configPath  :: Maybe String
      ,_testDefault :: Bool
      }
+
+data EmptyOptions = EmptyOptions
+instance Options.Options EmptyOptions
+  where defineOptions = pure EmptyOptions
 
 instance Options.Options MainOptions where
     defineOptions = pure MainOptions
@@ -47,11 +55,12 @@ instance Options.Options MainOptions where
             "just for testing ignore config file and use default config"
 
 data Config = Config {
-    config_reporter :: ReporterConfig
-  , config_report_broker  :: BrokerConfig
-  , config_enable_report :: Bool
-  , config_wsjtx :: WSJTXConfig
+    config_reporter         :: ReporterConfig
+  , config_report_broker    :: BrokerConfig
+  , config_enable_report    :: Bool
+  , config_wsjtx            :: WSJTXConfig
   , config_protocol_version :: Text
+  , config_debug            :: Bool
   } deriving (Show, Read, Eq, Generic, Lift)
 
 instance ToJSON Config where
@@ -67,15 +76,16 @@ instance Default Config where
   , config_enable_report = True
   , config_wsjtx = def
   , config_protocol_version ="W2M-V0.1"
+  , config_debug = False
   }
 
 data BrokerConfig = BrokerConfig {
-   username :: Maybe Text
-  ,password :: Maybe Text
-  ,host     :: String
-  ,head_topics :: [Text]
+   username        :: Maybe Text
+  ,password        :: Maybe Text
+  ,host            :: String
+  ,head_topics     :: [Text]
   ,beacon_interval :: Maybe Int
-  ,beacon_topic :: Text
+  ,beacon_topic    :: Text
   } deriving (Show, Read, Eq, Generic, Lift)
 
 instance ToJSON BrokerConfig where
@@ -88,16 +98,16 @@ instance Default BrokerConfig where
    username = Just "myUserName"
   ,password = Just "secret"
   ,host     = "localhost"
---  ,port     = 
+--  ,port     =
   ,head_topics = ["hamradio","spot"]
   ,beacon_interval = Nothing
   ,beacon_topic = "test-beacon"
   }
 
 data ReporterConfig = ReporterConfig {
-   reporter_callsign :: Maybe Text
-  ,reporter_locator  :: Text
-  ,reporter_info  :: Text
+   reporter_callsign    :: Maybe Text
+  ,reporter_locator     :: Text
+  ,reporter_info        :: Text
   ,reporter_band_config :: BandReport
   } deriving (Show, Read, Eq, Generic, Lift)
 instance ToJSON ReporterConfig where
@@ -140,17 +150,17 @@ instance Default WSJTXConfig where
   }
 
 data Report = Report {
-   message :: Text
-  ,mode    :: Text
-  ,band    :: Text
-  ,freq    :: Word64
-  ,time    :: DiffTime
-  ,snr     :: Int
-  ,delta_time :: Fixed E2
+   message         :: Text
+  ,mode            :: Text
+  ,band            :: Text
+  ,freq            :: Word64
+  ,time            :: DiffTime
+  ,snr             :: Int
+  ,delta_time      :: Fixed E2
   ,delta_frequency :: Word32
-  ,recv_locator :: Text
-  ,recv_callsign :: Text
-  ,recv_info    :: Text
+  ,recv_locator    :: Text
+  ,recv_callsign   :: Text
+  ,recv_info       :: Text
   } deriving (Show, Eq, Generic)
 
 instance ToJSON Report where
@@ -172,7 +182,7 @@ quoteConfig = QuasiQuoter {
 stringToConfig :: String -> Config
 stringToConfig str
   = case Yaml.decodeEither' $ BS.pack str of
-     Right x -> x
+     Right x  -> x
      Left msg -> error $ ("stringToConfig " ++ show  msg)
 
 aesonOptionsDropPrefix :: Options
@@ -181,3 +191,7 @@ aesonOptionsDropPrefix
       fieldLabelModifier = tail . dropWhile (not . (==) '_')
     }
 
+debugPrint :: Config -> String -> IO ()
+debugPrint c s = if config_debug c
+  then putStrLn s
+  else return ()

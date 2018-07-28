@@ -1,16 +1,16 @@
-{-# Language OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings #-}
 module FormatMqttMsg where
 
+import           Data.Aeson as Aeson
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
-import Data.Text as Text
-import Data.Word
-import Data.Fixed
-import Data.Aeson as Aeson
+import           Data.Fixed
+import           Data.Text as Text
+import           Data.Word
 import qualified Network.MQTT as MQTT
 
+import           W2MTypes
 import qualified WSJTX.UDP.NetworkMessage as WSJTX
-import W2MTypes
 
 toMqttMsg ::
      W2MTypes.Config -> Maybe WSJTX.Status -> WSJTX.Decode
@@ -31,7 +31,7 @@ toReport config status msg = report
        FixedBand b  -> b
        TrackWSJTXBand -> case maybeBand of
          Nothing -> "unknown_band"
-         Just b -> b
+         Just b  -> b
     reporter = case reporter_callsign $ config_reporter config of
        Nothing -> "unknown_reporter"
        Just cs -> cs
@@ -71,15 +71,15 @@ freqToBand :: Word64 -> Maybe Text
 freqToBand f
   = case Prelude.filter isInBand wsjtxBands of
       [(bnd,_)] -> Just bnd
-      _ -> Nothing
+      _         -> Nothing
   where
     overlap = 20000 -- 20kz overlap
     isInBand (_,(s,e)) = s-overlap <= f && f <= e + overlap
     wsjtxBands = [
        ("160m",(  1810000,   2000000))
       ,("80m", (  3500000,   3800000))
-      ,("40m", (  7000000,   7200000)) 
-      ,("30m", ( 10100000,  10150000)) 
+      ,("40m", (  7000000,   7200000))
+      ,("30m", ( 10100000,  10150000))
       ,("20m", ( 14000000,  14350000))
       ,("17m", ( 18068000,  18168000))
       ,("15m", ( 21000000,  21450000))

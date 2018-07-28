@@ -6,29 +6,30 @@ import Control.Monad
 import System.Exit (exitFailure, exitSuccess)
 import qualified Data.ByteString.Lazy.Char8 as BSLC (pack)
 import qualified Data.ByteString.Char8 as BS (putStrLn)
-import Options hiding (Options, defaultOptions)
+import qualified Options (runSubcommand, subcommand)
 import Data.Aeson as Aeson (eitherDecode)
 import Data.Yaml (encode)
 import Paths_wsjtx_to_mqtt (version)
 import Data.Version (showVersion)
+import Network.Socket (withSocketsDo)
 import W2MTypes
 import Bridge (runBridge)
 import Config (getConfig, helpConfig)
 import WSJTX.UDP.Server (testDump, replyWithPackages)
 
 main :: IO ()
-main = runSubcommand [
-   subcommand "showConfig" showConfig
-  ,subcommand "forward" forward
-  ,subcommand "dumpWsjtx" dumpWsjtx
-  ,subcommand "sendToUdp" sendToUDP
+main = withSocketsDo $ Options.runSubcommand [
+   Options.subcommand "showConfig" showConfig
+  ,Options.subcommand "forward" forward
+  ,Options.subcommand "dumpWsjtx" dumpWsjtx
+  ,Options.subcommand "sendToUdp" sendToUDP
   ]
 
-dumpWsjtx :: MainOptions -> MainOptions -> [String] -> IO ()
-dumpWsjtx _ _ _ = void $ testDump
+dumpWsjtx :: MainOptions -> EmptyOptions -> [String] -> IO ()
+dumpWsjtx _ EmptyOptions _ = void $ testDump
 
-showConfig :: MainOptions -> MainOptions -> [String] -> IO ()
-showConfig cmdOpts _ _ = do
+showConfig :: MainOptions -> EmptyOptions -> [String] -> IO ()
+showConfig cmdOpts EmptyOptions _ = do
   putStrLn $ "Version : " ++ showVersion version
   helpConfig
   putStrLn "---------------" 
@@ -37,8 +38,8 @@ showConfig cmdOpts _ _ = do
   BS.putStrLn $ encode config
   exitSuccess
 
-sendToUDP :: MainOptions -> MainOptions -> [String] -> IO ()
-sendToUDP cmdOpts _ strs = do
+sendToUDP :: MainOptions -> EmptyOptions -> [String] -> IO ()
+sendToUDP cmdOpts EmptyOptions strs = do
   config <- getConfig cmdOpts
   let port = fromInteger $ udp_port $ config_wsjtx config
   let decoded = forM strs (Aeson.eitherDecode . BSLC.pack)
@@ -50,7 +51,8 @@ sendToUDP cmdOpts _ strs = do
          exitFailure
   exitSuccess
 
-forward :: MainOptions -> MainOptions -> [String] -> IO ()
-forward cmdOpts _opts _args = do
+forward :: MainOptions -> EmptyOptions -> [String] -> IO ()
+forward cmdOpts EmptyOptions _args = do
   config <- getConfig cmdOpts
+  debugPrint config "starting wsjtx to udp bridge"
   runBridge config

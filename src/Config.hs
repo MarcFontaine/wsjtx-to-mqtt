@@ -3,7 +3,7 @@
 -- Module      :  Config
 -- Copyright   :  (c) Marc Fontaine 2017-2018
 -- License     :  BSD3
--- 
+--
 -- Maintainer  :  Marc.Fontaine@gmx.de
 -- Stability   :  experimental
 -- Portability :  GHC-only
@@ -12,14 +12,14 @@
 {-# LANGUAGE QuasiQuotes #-}
 module Config where
 
-import System.Exit (exitFailure)
-import System.Environment (lookupEnv)
-import Control.Monad
-import Data.Maybe
-import Data.Yaml as Yaml
+import           Control.Monad
 import qualified Data.Default.Class as Default
+import           Data.Maybe
+import           Data.Yaml as Yaml
+import           System.Environment (lookupEnv)
+import           System.Exit (exitFailure)
 
-import W2MTypes
+import           W2MTypes
 
 getConfig :: MainOptions -> IO W2MTypes.Config
 getConfig opts
@@ -35,8 +35,8 @@ getConfig opts
   when (_debug opts) $ putStrLn $ "config file path :" ++ configFile
   confData <- Yaml.decodeFileEither configFile
   config <- case confData of
-    Right x  -> return x
-    Left err -> do 
+    Right x  -> return $ x {config_debug =config_debug x || _debug opts}
+    Left err -> do
       putStrLn "Cannot parse config file"
       putStrLn $ show err
       exitFailure
@@ -45,9 +45,9 @@ getConfig opts
 
 helpConfig :: IO ()
 helpConfig = do
-    putStrLn "possible config file :" 
+    putStrLn "possible config file :"
     putStrLn includedConfigStr
-    
+
 includedConfigStr :: String
 includedConfig :: W2MTypes.Config
 (includedConfigStr,includedConfig) = [quoteConfig|
@@ -64,11 +64,19 @@ reporter:
 report_broker:
   username: myUserName
   password: secret
+
+#  username: null
+#  password: null
+
   head_topics:
   - hamradio
   - spot
   host: localhost
+# host: broker.hivemq.com
+# host: test.mosquitto.org
+# host: iot.eclipse.org ?
   beacon_interval: 1000000
   beacon_topic: test-beacon
 enable_report: true
+debug: false
 |]
