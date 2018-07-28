@@ -74,6 +74,8 @@ data BrokerConfig = BrokerConfig {
   ,password :: Maybe Text
   ,host     :: String
   ,head_topics :: [Text]
+  ,beacon_interval :: Maybe Int
+  ,beacon_topic :: Text
   } deriving (Show, Read, Eq, Generic, Lift)
 
 instance ToJSON BrokerConfig where
@@ -88,6 +90,8 @@ instance Default BrokerConfig where
   ,host     = "localhost"
 --  ,port     = 
   ,head_topics = ["hamradio","spot"]
+  ,beacon_interval = Nothing
+  ,beacon_topic = "test-beacon"
   }
 
 data ReporterConfig = ReporterConfig {
@@ -96,7 +100,6 @@ data ReporterConfig = ReporterConfig {
   ,reporter_info  :: Text
   ,reporter_band_config :: BandReport
   } deriving (Show, Read, Eq, Generic, Lift)
-
 instance ToJSON ReporterConfig where
   toJSON = genericToJSON aesonOptionsDropPrefix
   toEncoding = genericToEncoding aesonOptionsDropPrefix
@@ -130,6 +133,7 @@ instance ToJSON WSJTXConfig where
   toJSON = genericToJSON defaultOptions
   toEncoding = genericToEncoding defaultOptions
 instance FromJSON WSJTXConfig
+
 instance Default WSJTXConfig where
   def = WSJTXConfig {
    udp_port = 2237
@@ -167,7 +171,7 @@ quoteConfig = QuasiQuoter {
 
 stringToConfig :: String -> Config
 stringToConfig str
-  = case Yaml.decodeEither $ BS.pack str of
+  = case Yaml.decodeEither' $ BS.pack str of
      Right x -> x
      Left msg -> error $ ("stringToConfig " ++ show  msg)
 

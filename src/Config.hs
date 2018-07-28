@@ -68,5 +68,7 @@ report_broker:
   - hamradio
   - spot
   host: localhost
+  beacon_interval: 1000000
+  beacon_topic: test-beacon
 enable_report: true
 |]
