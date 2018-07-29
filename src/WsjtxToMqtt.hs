@@ -13,7 +13,7 @@ import Paths_wsjtx_to_mqtt (version)
 import Data.Version (showVersion)
 import Network.Socket (withSocketsDo)
 import W2MTypes
-import Bridge (runBridge)
+import Bridge (runBridge,testMqtt)
 import Config (getConfig, helpConfig)
 import WSJTX.UDP.Server (testDump, replyWithPackages)
 
@@ -23,6 +23,7 @@ main = withSocketsDo $ Options.runSubcommand [
   ,Options.subcommand "forward" forward
   ,Options.subcommand "dumpWsjtx" dumpWsjtx
   ,Options.subcommand "sendToUdp" sendToUDP
+  ,Options.subcommand "testMqtt" $ \_ EmptyOptions _ -> testMqtt
   ]
 
 dumpWsjtx :: MainOptions -> EmptyOptions -> [String] -> IO ()
@@ -30,7 +31,7 @@ dumpWsjtx _ EmptyOptions _ = void $ testDump
 
 showConfig :: MainOptions -> EmptyOptions -> [String] -> IO ()
 showConfig cmdOpts EmptyOptions _ = do
-  putStrLn $ "Version : " ++ showVersion version
+  putStrLn $ "# Version : " ++ showVersion version
   helpConfig
   putStrLn "---------------" 
   putStrLn "current config:"

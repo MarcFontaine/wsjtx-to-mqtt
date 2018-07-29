@@ -32,11 +32,22 @@ runBridge config = withWsjtxSocket wsjtxPort $ \wsjtxSocket -> do
   pubChan <- newTChanIO
   let serverConf = config_report_broker config
       mqttConf = (MQTT.defaultConfig cmds pubChan)
+              { cUsername = Nothing
+              , cPassword = Nothing
+              , cHost     = "broker.hivemq.com"
+              , cLogDebug = putStrLn
+              , cKeepAlive = Just 20
+              , cClientID = "hscli123"
+              }
+{-
               { cUsername = W2MTypes.username serverConf
               , cPassword = W2MTypes.password serverConf
               , cHost     = host serverConf
               , cLogDebug = debugPrint config
+              , cKeepAlive = Just 20
+              , cClientID = "hscli123"
               }
+-}
   wsjtxState <- newMVar Nothing
   debugPrint config "starting udp server"
   _wsjtxThread <- forkWsjtxServer wsjtxSocket
@@ -64,7 +75,7 @@ runBridge config = withWsjtxSocket wsjtxPort $ \wsjtxSocket -> do
       case package of
         WSJTX.PDecode msg -> do
            let (t,m) =  toMqttMsg mainConfig status msg
-           publish mqttConf NoConfirm False t m
+           publish mqttConf Handshake False t m
            debugPrint config $ "MQTT send :" ++ BSC.unpack m
 
         WSJTX.PStatus s -> modifyMVar_ wsjtxStatus (const $ return $ Just s)
@@ -80,3 +91,28 @@ runBridge config = withWsjtxSocket wsjtxPort $ \wsjtxSocket -> do
       publish mqttConfig NoConfirm False t "ping"
       debugPrint config $ "MQTT send : ping"
       threadDelay $ delay*1000
+
+testMqtt :: IO ()
+testMqtt = do
+  cmds <- mkCommands
+  pubChan <- newTChanIO
+  let mqttConfig = (MQTT.defaultConfig cmds pubChan)
+              { cUsername = Nothing
+              , cPassword = Nothing
+              , cHost     = "broker.hivemq.com"
+              , cLogDebug = putStrLn
+              , cKeepAlive = Just 20
+              , cClientID = "hscli123"
+              }
+  putStrLn "starting msg source"
+  void $ forkIO $ forM_ [(1::Int)..30] $ \cnt -> do
+      let t = MQTT.fromLevels
+                ["hamradio","test",Text.pack $ show cnt]
+--      publish mqttConfig NoConfirm False t "ping"
+      publish mqttConfig Handshake False t "ping"
+      putStrLn "MQTT send : ping"
+      threadDelay 1000000
+  putStrLn "starting mqtt client"
+  terminated <- MQTT.run mqttConfig
+  print terminated
+  putStrLn "mqtt client terminated"

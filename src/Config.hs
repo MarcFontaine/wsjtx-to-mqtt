@@ -45,7 +45,7 @@ getConfig opts
 
 helpConfig :: IO ()
 helpConfig = do
-    putStrLn "possible config file :"
+    putStrLn "# possible config file :"
     putStrLn includedConfigStr
 
 includedConfigStr :: String
