@@ -35,6 +35,7 @@ runBridge config = withWsjtxSocket wsjtxPort $ \wsjtxSocket -> do
               { cUsername = W2MTypes.username serverConf
               , cPassword = W2MTypes.password serverConf
               , cHost     = host serverConf
+              , cLogDebug = debugPrint config
               }
   wsjtxState <- newMVar Nothing
   debugPrint config "starting udp server"
