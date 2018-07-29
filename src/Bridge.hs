@@ -109,7 +109,7 @@ testMqtt = do
       let t = MQTT.fromLevels
                 ["hamradio","test",Text.pack $ show cnt]
 --      publish mqttConfig NoConfirm False t "ping"
-      publish mqttConfig Handshake False t "ping"
+      publish mqttConfig NoConfirm False t "ping"
       putStrLn "MQTT send : ping"
       threadDelay 1000000
   putStrLn "starting mqtt client"
