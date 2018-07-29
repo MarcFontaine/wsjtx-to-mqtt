@@ -75,7 +75,9 @@ report_broker:
 # host: broker.hivemq.com
 # host: test.mosquitto.org
 # host: iot.eclipse.org ?
-  beacon_interval: 1000000
+
+# one ping every 1000 ms
+  beacon_interval: 1000
   beacon_topic: test-beacon
 enable_report: true
 debug: false

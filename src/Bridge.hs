@@ -78,4 +78,4 @@ runBridge config = withWsjtxSocket wsjtxPort $ \wsjtxSocket -> do
                 )
       publish mqttConfig NoConfirm False t "ping"
       debugPrint config $ "MQTT send : ping"
-      threadDelay delay
+      threadDelay $ delay*1000
