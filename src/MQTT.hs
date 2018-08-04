@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Mqtt
+module MQTT
 where
 
 import Data.Text as Text (Text, intercalate)

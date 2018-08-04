@@ -2,22 +2,20 @@
 module FormatMqttMsg where
 
 import           Data.Aeson as Aeson
-import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import           Data.Fixed
 import           Data.Text as Text
 import           Data.Word
-import qualified Network.MQTT as MQTT
 
 import           W2MTypes
 import qualified WSJTX.UDP.NetworkMessage as WSJTX
 
 toMqttMsg ::
      W2MTypes.Config -> Maybe WSJTX.Status -> WSJTX.Decode
-  -> (MQTT.Topic , BS.ByteString)
+  -> ([Text] , BSL.ByteString)
 toMqttMsg config status msg
   = (toTopic config status msg report
-    ,BSL.toStrict $ Aeson.encode report)
+    ,Aeson.encode report)
   where
     report = toReport config status msg
 
@@ -51,11 +49,10 @@ toReport config status msg = report
 
 toTopic ::
        W2MTypes.Config -> Maybe WSJTX.Status -> WSJTX.Decode -> Report
-   -> MQTT.Topic
+   -> [Text]
 toTopic config _status _msg report
-   = MQTT.fromLevels
-       ((head_topics $ config_report_broker config) ++
-       [
+   =    ( head_topics $ config_report_broker config )
+     ++ [
          band report
         ,mode report
         ,"callsign"
@@ -65,7 +62,6 @@ toTopic config _status _msg report
         -- when
         ,config_protocol_version config
         ]
-        )
 
 freqToBand :: Word64 -> Maybe Text
 freqToBand f

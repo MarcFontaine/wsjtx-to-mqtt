@@ -3,7 +3,7 @@ synopsis:            a bridge between WSJTX and the MQTT protocol
 description:
             A bridge between WSJTX and the MQTT protocol.
             
-version:             0.1.4.0
+version:             0.2.0.0
 license:             BSD3
 license-file:        LICENSE
 author:              Marc Fontaine
@@ -32,17 +32,15 @@ executable wsjtx-to-mqtt
       , aeson-pretty
       , yaml
       , data-default-class
---      , c-mosquitto          
 --      , dhall
       , template-haskell
       , th-lift-instances          
       , microlens
       , microlens-th                
       , options          
-      , mqtt-hs
       , wsjtx-udp >= 0.1.3.0
                 
-    ghc-options:      -rtsopts -Wall -with-rtsopts=-T
+    ghc-options:      -rtsopts -Wall -threaded -with-rtsopts=-T
     default-language: Haskell2010
     default-extensions:     TemplateHaskell
     hs-source-dirs:   src
@@ -51,7 +49,7 @@ executable wsjtx-to-mqtt
         Config
       , W2MTypes
       , Bridge
-      , Mqtt                      
+      , MQTT
       , FormatMqttMsg
       , Paths_wsjtx_to_mqtt
     autogen-modules:
