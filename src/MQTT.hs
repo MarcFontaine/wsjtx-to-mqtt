@@ -88,12 +88,12 @@ sendMqtt packets = withSocketsDo $ do
 connectMsg :: BSC.ByteString -> BSL.ByteString
 connectMsg clientId = toLazyByteString $
        connectHeader
-    <> remainingLength (
+    `mappend` remainingLength (
            protocolName
-        <> protocolLevel
-        <> connectFlags
-        <> keepAlive
-        <> lenBS clientId
+        `mappend` protocolLevel
+        `mappend` connectFlags
+        `mappend` keepAlive
+        `mappend` lenBS clientId
         )  
     where
         connectHeader = word8 0x10      
@@ -105,22 +105,22 @@ connectMsg clientId = toLazyByteString $
 publishMsg :: Msg -> BSL.ByteString
 publishMsg (Msg topic message) = toLazyByteString $
     ( pubHeader
-      <> remainingLength (
+      `mappend` remainingLength (
            (lenBS $ encodeUtf8 $ Text.intercalate "/" topic)
-        <> identifier
-        <> lazyByteString message ))
+        `mappend` identifier
+        `mappend` lazyByteString message ))
     where
         pubHeader = word8 0x30
         identifier = mempty 
 
 lenBS :: BSC.ByteString -> Builder
 lenBS bs
-    = ( word16BE $ fromIntegral $ BSC.length bs) <> byteString bs
+    = ( word16BE $ fromIntegral $ BSC.length bs) `mappend` byteString bs
     
 remainingLength :: Builder -> Builder
 remainingLength c =
      word8 len -- variable length
-  <> lazyByteString body
+  `mappend` lazyByteString body
   where
     body = toLazyByteString c
     len = fromIntegral $ BSL.length body
