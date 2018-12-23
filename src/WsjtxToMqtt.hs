@@ -4,14 +4,15 @@ module Main where
 
 import Control.Monad
 import System.Exit (exitFailure, exitSuccess)
+import Paths_wsjtx_to_mqtt (version)
 import qualified Data.ByteString.Lazy.Char8 as BSLC (pack,putStrLn)
-import qualified Data.ByteString.Char8 as BS (putStrLn)
-import qualified Data.Text.IO as Text (putStrLn)
+import qualified Data.ByteString.Char8 as BS (putStrLn, unpack)
+import qualified Data.Text as Text (unpack)
 import qualified Options (runSubcommand, subcommand)
 import Data.Aeson as Aeson (eitherDecode, encode)
 import Data.Yaml as Yaml (encode)
-import Paths_wsjtx_to_mqtt (version)
 import Data.Version (showVersion)
+import Data.Double.Conversion.ByteString (toFixed)
 import Network.Socket (withSocketsDo)
 
 import W2MTypes
@@ -43,8 +44,16 @@ dumpWsjtx _ format _ = case format of
         wsjtxPort = 2237
 
         dumpText :: Package -> IO ()
-        dumpText (PDecode (Decode {..})) = Text.putStrLn decode_message
+        dumpText (PDecode (Decode {..})) = putStrLn $ concat [
+            show decode_time
+          , pad 4 $ BS.unpack $ toFixed 1 decode_delta_time
+          , pad 5 $ show decode_snr
+          , pad 5 $ show decode_delta_frequency
+          , " ~  "
+          , Text.unpack decode_message
+          ]
         dumpText _ = return ()
+        pad l s = reverse $ take l $ reverse $ "    " ++ s
 
 showConfig :: MainOptions -> EmptyOptions -> [String] -> IO ()
 showConfig cmdOpts EmptyOptions _ = do

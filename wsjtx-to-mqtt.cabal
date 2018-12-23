@@ -31,6 +31,7 @@ executable wsjtx-to-mqtt
       , aeson-pretty
       , yaml
       , data-default-class
+      , double-conversion
 --      , dhall
       , template-haskell
       , th-lift-instances          
