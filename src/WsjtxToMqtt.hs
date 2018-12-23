@@ -26,8 +26,11 @@ main = withSocketsDo $ Options.runSubcommand [
   ,Options.subcommand "testMqtt" $ \_ EmptyOptions _ -> testMqtt
   ]
 
-dumpWsjtx :: MainOptions -> EmptyOptions -> [String] -> IO ()
-dumpWsjtx _ EmptyOptions _ = void $ testDump
+dumpWsjtx :: MainOptions -> DumpOptions -> [String] -> IO ()
+dumpWsjtx _ format _ = case format of
+    DumpHaskell -> void $ testDump
+    DumpText    -> putStrLn "dumptxt"
+    DumpJSON    -> putStrLn "dumpJSON"
 
 showConfig :: MainOptions -> EmptyOptions -> [String] -> IO ()
 showConfig cmdOpts EmptyOptions _ = do

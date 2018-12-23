@@ -41,18 +41,28 @@ data MainOptions = MainOptions
      ,_testDefault :: Bool
      }
 
-data EmptyOptions = EmptyOptions
-instance Options.Options EmptyOptions
-  where defineOptions = pure EmptyOptions
-
 instance Options.Options MainOptions where
     defineOptions = pure MainOptions
         <*> simpleOption "debug" False
-            "debugging output"
+            "enable debugging output"
         <*> simpleOption "config" Nothing
             "path of the configfile"
         <*> simpleOption "testDefault" False
             "just for testing ignore config file and use default config"
+
+data DumpOptions
+  = DumpText | DumpHaskell | DumpJSON
+  deriving (Show, Eq, Ord, Enum, Bounded)
+
+instance Options.Options DumpOptions where
+    defineOptions = defineOption (optionType_enum "format" ) (\o -> o
+            { optionLongFlags = ["format"]
+            , optionDefault = DumpHaskell
+            })
+
+data EmptyOptions = EmptyOptions
+instance Options.Options EmptyOptions
+  where defineOptions = pure EmptyOptions
 
 data Config = Config {
     config_reporter         :: ReporterConfig
