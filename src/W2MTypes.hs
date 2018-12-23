@@ -55,7 +55,7 @@ data DumpOptions
   deriving (Show, Eq, Ord, Enum, Bounded)
 
 instance Options.Options DumpOptions where
-    defineOptions = defineOption (optionType_enum "format" ) (\o -> o
+    defineOptions = defineOption (optionType_enum "DumpHaskell | DumpText | DumpJSON" ) (\o -> o
             { optionLongFlags = ["format"]
             , optionDefault = DumpHaskell
             })

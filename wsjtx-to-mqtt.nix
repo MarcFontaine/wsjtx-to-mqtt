@@ -5,7 +5,7 @@
 }:
 mkDerivation {
   pname = "wsjtx-to-mqtt";
-  version = "0.1.4.1";
+  version = "0.1.5.0";
   src = ./.;
   isLibrary = false;
   isExecutable = true;

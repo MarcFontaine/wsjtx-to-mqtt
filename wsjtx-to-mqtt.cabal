@@ -3,7 +3,7 @@ synopsis:            a bridge between WSJTX and the MQTT protocol
 description:
             A bridge between WSJTX and the MQTT protocol.
             
-version:             0.1.4.1
+version:             0.1.5.0
 license:             BSD3
 license-file:        LICENSE
 author:              Marc Fontaine
