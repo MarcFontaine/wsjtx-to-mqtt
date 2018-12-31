@@ -1,4 +1,4 @@
-WSJTX to MQTT
+wsjtx-to-mqtt
 =============
 
 [![Available on Hackage][badge-hackage]][hackage]
@@ -7,9 +7,18 @@ WSJTX to MQTT
 [![AppVeyor][badge-appveyor]][appveyor]
 [![Windows Binary Release][badge-github-releases]][github-releases]
 
-This is a bridge between WSJTX amd MQTT.
-One end listens for incoming UDP packages from WSJTX
-the other end works as a MQTT client.
+`wsjtx-to-mqtt` is a small UDP server that listens for incoming UDP packages from WSJT-X.
+It supports several modes of operations:
+
+* `wsjtx-to-mqtt forward` : forward UDP packages to a MQTT server (0.1.5.0 does not support MQTT on Windows)
+* `wsjtx-to-mqtt dumpWsjtx --format DumpText` : print incoming packages in a text format
+* `wsjtx-to-mqtt dumpWsjtx --format DumpJSON` : print packages in JSON
+* `wsjtx-to-mqtt showConfig` : print a template for the config file
+* `wsjtx-to-mqtt --help` : help message
+* `wsjtx-to-mqtt sendToWsjtx` : send a command to WSJT-X
+
+The `wsjtx-udp` library is used for parsing UDP packages.
+It works with WSJT-X version 2.0.0 but does not support some of the extension of 2.0.0 over 1.9.0.
 
 [travis]: https://travis-ci.org/MarcFontaine/wsjtx-to-mqtt
 [badge-travis]: https://img.shields.io/travis/MarcFontaine/wsjtx-to-mqtt.svg?label=Linux%20build

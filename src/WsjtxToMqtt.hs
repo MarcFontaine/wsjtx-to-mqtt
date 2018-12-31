@@ -26,7 +26,7 @@ main = withSocketsDo $ Options.runSubcommand [
    Options.subcommand "showConfig" showConfig
   ,Options.subcommand "forward" forward
   ,Options.subcommand "dumpWsjtx" dumpWsjtx
-  ,Options.subcommand "sendToUdp" sendToUDP
+  ,Options.subcommand "sendToWsjtx" sendToUDP
   ,Options.subcommand "testMqtt" $ \_ EmptyOptions _ -> testMqtt
   ]
 
