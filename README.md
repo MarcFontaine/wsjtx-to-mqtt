@@ -10,7 +10,7 @@ wsjtx-to-mqtt
 `wsjtx-to-mqtt` is a small UDP server that listens for incoming UDP packages from WSJT-X.
 It supports several modes of operations:
 
-* `wsjtx-to-mqtt forward` : forward UDP packages to a MQTT server (0.1.5.0 does not support MQTT on Windows)
+* `wsjtx-to-mqtt forward` : forward UDP packages to a MQTT server (0.3.0.0 does not support MQTT on Windows)
 * `wsjtx-to-mqtt dumpWsjtx --format DumpText` : print incoming packages in a text format
 * `wsjtx-to-mqtt dumpWsjtx --format DumpJSON` : print packages in JSON
 * `wsjtx-to-mqtt showConfig` : print a template for the config file
