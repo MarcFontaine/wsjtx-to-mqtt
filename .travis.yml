@@ -1,6 +1,6 @@
 language: nix
 script:
-- nix-env -iA cachix
+- nix-env -iA cachix -f https://cachix.org/api/v1/install
 - echo "trusted-users = root ${USER}" | sudo tee -a /etc/nix/nix.conf || true
 - sudo pkill nix-daemon || true
 - cachix use mafo
