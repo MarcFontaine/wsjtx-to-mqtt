@@ -25,7 +25,7 @@ toReport ::
   W2MTypes.Config -> Maybe WSJTX.Status -> WSJTX.Decode -> Report
 toReport config status msg = report
   where
-    maybeBand = fmap WSJTX.status_dial_frequency status >>= freqToBand
+    maybeBand = fmap (WSJTX.unDialFrequency . WSJTX.status_dial_frequency) status >>= freqToBand
     bandInfo = case reporter_band_config $ config_reporter config of
        UnknownBand -> "unknown_band"
        FixedBand b  -> b
@@ -39,7 +39,7 @@ toReport config status msg = report
         message = WSJTX.decode_message msg
        ,mode = maybe  "unknown_mode" WSJTX.status_mode status
        ,band = bandInfo
-       ,freq = maybe 0 WSJTX.status_dial_frequency status
+       ,freq = maybe 0 (WSJTX.unDialFrequency . WSJTX.status_dial_frequency) status
        ,time = WSJTX.decode_time msg
        ,snr  = WSJTX.decode_snr msg
        ,delta_time = MkFixed $ round (WSJTX.decode_delta_time msg *100)

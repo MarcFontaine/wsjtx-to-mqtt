@@ -18,8 +18,8 @@ import Network.Socket (withSocketsDo)
 import W2MTypes
 import Bridge (runBridge,testMqtt)
 import Config (getConfig, helpConfig)
-import WSJTX.UDP.Server (testDump, replyWithPackages, withWsjtxSocket, forkWsjtxServer)
-import WSJTX.UDP.NetworkMessage (Package(..), Decode(..))
+import WSJTX.UDP.Server (testDump, replyWithPackets, withWsjtxSocket, forkWsjtxServer)
+import WSJTX.UDP.NetworkMessage (Packet(..), Decode(..))
 
 main :: IO ()
 main = withSocketsDo $ Options.runSubcommand [
@@ -36,14 +36,14 @@ dumpWsjtx _ format _ = case format of
     DumpText    -> server dumpText
     DumpJSON    -> server $ BSLC.putStrLn . Aeson.encode
     where
-        server :: (Package -> IO ()) -> IO ()
+        server :: (Packet -> IO ()) -> IO ()
         server dump = withWsjtxSocket wsjtxPort $ \sock -> do
                         _threadId <- forkWsjtxServer sock dump
                         void getLine
           
         wsjtxPort = 2237
 
-        dumpText :: Package -> IO ()
+        dumpText :: Packet -> IO ()
         dumpText (PDecode (Decode {..})) = putStrLn $ concat [
             show decode_time
           , pad 4 $ BS.unpack $ toFixed 1 decode_delta_time
@@ -71,7 +71,7 @@ sendToUDP cmdOpts EmptyOptions strs = do
   let port = fromInteger $ udp_port $ config_wsjtx config
   let decoded = forM strs (Aeson.eitherDecode . BSLC.pack)
   case decoded of
-       Right packageList -> replyWithPackages port packageList
+       Right packageList -> replyWithPackets port packageList
        Left msg -> do
          putStrLn "error : cannot decode packages"
          putStrLn $ show (msg , strs)
