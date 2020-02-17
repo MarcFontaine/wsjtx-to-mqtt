@@ -10,5 +10,5 @@ after_success:
 - cachix push mafo ./result-wsjtx-to-mqtt
 matrix:
   include:
-  - name: GHC 863
-    env: COMPILER="ghc863"
+  - name: GHC 865
+    env: COMPILER="ghc865"
